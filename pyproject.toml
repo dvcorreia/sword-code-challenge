@@ -1,0 +1,127 @@
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "clinical-recomendations"
+requires-python = ">=3.12"
+authors = [
+    { name = "Diogo Correia", email = "dv_correia@hotmail.com" },
+]
+license = {file = "LICENSE"}
+dependencies = [
+    "fastapi",
+    "pydantic",
+    "hypercorn",
+]
+dynamic = ["version"]
+
+[project.optional-dependencies]
+dev = [
+    "black",
+    "coverage",
+    "isort",
+    "mypy",
+    "pytest",
+    "pytest-asyncio",
+    "pytest-sugar",
+    "ruff",
+]
+
+[project.scripts]
+clinical-recomendations-server = "clinical_recomendations._main:main"
+
+[tool.hatch.version]
+path = "clinical_recomendations/__init__.py"
+
+[tool.setuptools.packages.find]
+where = ["."]  # list of folders that contain the packages (["."] by default)
+include = ["*"]  # package names should match these glob patterns (["*"] by default)
+exclude = ["tests*"]  # exclude packages matching these glob patterns (empty by default)
+namespaces = false  # false to disable scanning PEP 420 namespaces (true by default) (resource: https://www.youtube.com/watch?v=2Xvb79hOUdM)
+
+[tool.black]
+line-length = 88
+target-version = ['py312']
+include = '\.pyi?$'
+
+[tool.isort]
+profile = "black"
+line_length = 88
+src_paths = ["clinical_recomendations", "tests"]
+add_imports = ["from __future__ import annotations"]
+
+[tool.mypy]
+python_version = "3.12"
+exclude = [
+    ".venv",
+    ".direnv"
+]
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "-ra -q"
+asyncio_mode = "strict"
+testpaths = ["tests"]
+
+[tool.coverage.run]
+branch = true
+source = ["clinical_recomendations"]
+omit = [
+    "venv/*",
+    ".venv/*",
+    ".direnv/*",
+    "tests/*"
+]
+
+[tool.coverage.report]
+show_missing = true
+fail_under = 0
+
+[tool.ruff]
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+    "__pycache__"
+]
+
+line-length = 88
+target-version = "py312"
+
+[tool.ruff.lint]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "C",  # flake8-comprehensions
+    "B",  # flake8-bugbear
+]
+ignore = [
+    "E501",  # line too long, handled by black
+    "C901",  # too complex
+    "B008",  # function call in argument defaults
+]
+
+# allow unused variables when underscore-prefixed.
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[tool.ruff.lint.mccabe]
+max-complexity = 10

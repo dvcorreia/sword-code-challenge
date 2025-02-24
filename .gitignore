@@ -1,3 +1,15 @@
+# OS
+.DS_Store
+
+# IDE
+.vscode
+
+# Direnv
+.direnv
+
+# Ruff
+.ruff_cache
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
