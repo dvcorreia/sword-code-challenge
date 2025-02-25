@@ -23,5 +23,12 @@ async def fetch_recomendation(_: Request) -> Response:
 
 def main(_: Sequence[str] | None = None) -> int:
     # type issue: https://github.com/encode/starlette/discussions/2040
-    asyncio.run(serve(app, Config()))  # type: ignore[arg-type]
+    asyncio.run(serve(app, hypercorn_config()))  # type: ignore[arg-type]
     return 0
+
+
+def hypercorn_config() -> Config:
+    config = Config()
+    config.bind = ["0.0.0.0"]
+    config.debug = True
+    return config

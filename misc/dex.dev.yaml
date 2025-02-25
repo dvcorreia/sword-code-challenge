@@ -1,0 +1,38 @@
+# The base path of Dex and the external name of the OpenID Connect service.
+# This is the canonical URL that all clients MUST use to refer to Dex. If a
+# path is provided, Dex's HTTP service will listen at a non-root URL.
+issuer: http://127.0.0.1:5556/dex
+
+# The storage configuration determines where Dex stores its state.
+# See the documentation (https://dexidp.io/docs/storage/) for further information.
+storage:
+  type: memory
+
+# HTTP service configuration
+web:
+  http: 127.0.0.1:5556
+
+# Static clients registered in Dex by default.
+staticClients:
+  - id: clinical-recomendations
+    redirectURIs:
+      - 'http://127.0.0.1:8000/callback'
+    name: 'Clinical Recomendations'
+    secret: ZXhhbXBsZS1hcHAtc2VjcmV0
+
+# Enable the password database.
+#
+# It's a "virtual" connector (identity provider) that stores
+# login credentials in Dex's store.
+enablePasswordDB: true
+
+# If this option isn't chosen users may be added through the gRPC API.
+# A static list of passwords for the password connector.
+#
+# Alternatively, passwords my be added/updated through the gRPC API.
+staticPasswords:
+  - email: "admin@example.com"
+    # bcrypt hash of the string "password": $(echo password | htpasswd -BinC 10 admin | cut -d: -f2)
+    hash: "$2a$10$2b2cU8CPhOTaGrs1HRQuAueS7JTT5ZHsHSzYiFPm1leZck7Mc8T4W"
+    username: "admin"
+    userID: "08a8684b-db88-4b73-90a9-3cd1661f5466"

@@ -1,0 +1,11 @@
+services:
+  recomendations:
+    build: .
+    ports:
+      - "8000:8000"
+  oidc:
+    image: dexidp/dex:v2.42.0
+    ports:
+      - "5556:5556"
+    volumes:
+      - ./misc/dex.dev.yaml:/etc/dex/config.yaml
