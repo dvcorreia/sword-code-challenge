@@ -39,6 +39,7 @@
               ))
 
               dex-oidc
+              open-policy-agent
               sqlc
             ];
           };

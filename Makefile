@@ -1,3 +1,9 @@
+.PHONY: rules
+rules:
+	opa build -b rules/ --ignore "*_test.rego" -o rules/bundle.tar.gz
+rules.test:
+	opa test rules/ -v
+
 format:
 	python -m isort .
 	python -m black .
