@@ -10,4 +10,4 @@ RUN pip install . --no-cache-dir
 COPY . .
 
 EXPOSE 8000
-ENTRYPOINT [ "clinical-recomendations-server" ]
+ENTRYPOINT [ "clinical-recommendations-server" ]

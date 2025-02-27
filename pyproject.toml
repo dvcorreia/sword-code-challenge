@@ -3,7 +3,7 @@ requires = ["setuptools", "setuptools-scm"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "clinical-recomendations"
+name = "clinical-recommendations"
 requires-python = ">=3.12"
 authors = [
     { name = "Diogo Correia", email = "dv_correia@hotmail.com" },
@@ -29,10 +29,10 @@ dev = [
 ]
 
 [project.scripts]
-clinical-recomendations-server = "clinical_recomendations._main:main"
+clinical-recommendations-server = "clinical_recommendations._main:main"
 
 [tool.hatch.version]
-path = "clinical_recomendations/__init__.py"
+path = "clinical_recommendations/__init__.py"
 
 [tool.setuptools.packages.find]
 where = ["."]  # list of folders that contain the packages (["."] by default)
@@ -48,7 +48,7 @@ include = '\.pyi?$'
 [tool.isort]
 profile = "black"
 line_length = 88
-src_paths = ["clinical_recomendations", "tests"]
+src_paths = ["clinical_recommendations", "tests"]
 add_imports = ["from __future__ import annotations"]
 
 [tool.mypy]
@@ -67,7 +67,7 @@ testpaths = ["tests"]
 
 [tool.coverage.run]
 branch = true
-source = ["clinical_recomendations"]
+source = ["clinical_recommendations"]
 omit = [
     "venv/*",
     ".venv/*",

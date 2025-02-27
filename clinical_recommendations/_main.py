@@ -17,7 +17,7 @@ async def evaluate(_: Request) -> Response:
 
 
 @app.get("/recommendation/{recommendation_id}")
-async def fetch_recomendation(_: Request) -> Response:
+async def fetch_recommendation(_: Request) -> Response:
     raise HTTPException(status_code=501)
 
 

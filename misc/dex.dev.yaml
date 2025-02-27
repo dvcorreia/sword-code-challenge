@@ -14,10 +14,10 @@ web:
 
 # Static clients registered in Dex by default.
 staticClients:
-  - id: clinical-recomendations
+  - id: clinical-recommendations
     redirectURIs:
       - 'http://127.0.0.1:8000/callback'
-    name: 'Clinical Recomendations'
+    name: 'Clinical Recommendations'
     secret: ZXhhbXBsZS1hcHAtc2VjcmV0
 
 # Enable the password database.
