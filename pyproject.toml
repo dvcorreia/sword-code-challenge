@@ -13,7 +13,7 @@ dependencies = [
     "fastapi",
     "pydantic",
     "hypercorn",
-    "uvicorn",
+    "httpx",
 ]
 dynamic = ["version"]
 

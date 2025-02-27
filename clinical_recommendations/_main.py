@@ -1,19 +1,42 @@
 from __future__ import annotations
 
 import asyncio
-from typing import Sequence
+from typing import Sequence, TypeAlias
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import Response
 from hypercorn import Config
 from hypercorn.asyncio import serve
 
+from clinical_recommendations.engine.opa import OpaEngine
+from clinical_recommendations.engine.recommendation import (
+    ClinicalRecommendationEngine,
+    PatientData,
+    Recommendation,
+)
+
 app = FastAPI()
+
+recommendation_engine: ClinicalRecommendationEngine = OpaEngine(
+    addr="http://localhost:8181",
+    policy="clinical_recommendations.rules.recommendations",
+)
+
+
+class EvaluateRequest(PatientData): ...
+
+
+def handle_evaluate(recommendation_engine: ClinicalRecommendationEngine):
+    async def evaluate(data: EvaluateRequest) -> list[Recommendation]:
+        recommendations = await recommendation_engine.recommend(data)
+        return recommendations
+
+    return evaluate
 
 
 @app.post("/evaluate")
-async def evaluate(_: Request) -> Response:
-    raise HTTPException(status_code=501)
+async def evaluate(data: EvaluateRequest) -> list[Recommendation]:
+    return await handle_evaluate(recommendation_engine)(data)
 
 
 @app.get("/recommendation/{recommendation_id}")
