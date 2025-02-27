@@ -1,6 +1,8 @@
 .PHONY: rules
 rules:
 	opa build -b rules/ --ignore "*_test.rego" -o rules/bundle.tar.gz
+rules.eval:
+	curl localhost:8181/v1/data/clinical_recommendations/rules/recommendations -d @misc/opa-input.json -H 'Content-Type: application/json'
 rules.test:
 	opa test rules/ -v
 

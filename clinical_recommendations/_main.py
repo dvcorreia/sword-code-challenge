@@ -30,5 +30,4 @@ def main(_: Sequence[str] | None = None) -> int:
 def hypercorn_config() -> Config:
     config = Config()
     config.bind = ["0.0.0.0"]
-    config.debug = True
     return config

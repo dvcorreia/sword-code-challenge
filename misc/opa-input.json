@@ -1,0 +1,8 @@
+{
+    "input": {
+        "age": 68,
+        "has_chronic_pain": true,
+        "bmi": 31,
+        "recent_surgery": false
+    }
+}

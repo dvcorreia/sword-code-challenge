@@ -9,3 +9,20 @@ services:
       - "5556:5556"
     volumes:
       - ./misc/dex.dev.yaml:/etc/dex/config.yaml
+  opa:
+    image: openpolicyagent/opa:1.1.0
+    command:
+      - "run"
+      - "--server"
+      - "--config-file=/opa-conf.yaml"
+      - "--addr=0.0.0.0:8181"
+    ports:
+      - "8181:8181"
+    volumes:
+      - ./misc/opa-conf.yaml:/opa-conf.yaml
+    depends_on:
+      - policy-host-server
+  policy-host-server:
+    image: nginx:1.27.0-alpine
+    volumes:
+      - ./rules/bundle.tar.gz:/usr/share/nginx/html/bundle.tar.gz

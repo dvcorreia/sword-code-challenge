@@ -1,0 +1,17 @@
+services:
+  - name: policy-host-server
+    url: http://policy-host-server
+
+bundles:
+  authz:
+    service: policy-host-server
+    resource: bundle.tar.gz
+    persist: true
+    polling:
+      min_delay_seconds: 10
+      max_delay_seconds: 20
+
+decision_logs:
+  console: true
+
+persistence_directory: /tmp/opa # got permission issues with default
