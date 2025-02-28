@@ -1,3 +1,6 @@
+gen:
+	sqlc generate -f clinical_recommendations/storage/sqlc.yaml
+
 .PHONY: rules
 rules:
 	opa build -b rules/ --ignore "*_test.rego" -o rules/bundle.tar.gz

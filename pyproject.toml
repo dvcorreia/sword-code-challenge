@@ -14,6 +14,9 @@ dependencies = [
     "pydantic",
     "hypercorn",
     "httpx",
+    "sqlalchemy[asyncio]",
+    "asyncpg",
+    "psycopg2-binary",
 ]
 dynamic = ["version"]
 
@@ -40,6 +43,9 @@ where = ["."]  # list of folders that contain the packages (["."] by default)
 include = ["*"]  # package names should match these glob patterns (["*"] by default)
 exclude = ["tests*"]  # exclude packages matching these glob patterns (empty by default)
 namespaces = false  # false to disable scanning PEP 420 namespaces (true by default) (resource: https://www.youtube.com/watch?v=2Xvb79hOUdM)
+
+[tool.setuptools.package-data]
+"clinical_recommendations.storage.sqlite.migrations" = ["*.sql"]
 
 [tool.black]
 line-length = 88
