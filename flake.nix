@@ -22,10 +22,36 @@
         system:
         import nixpkgs {
           inherit system;
+          overlays = [ self.overlay ];
         }
       );
     in
     {
+      overlay = final: prev: {
+        clinical-recommendations = prev.callPackage ./package.nix { };
+      };
+
+      packages = forAllSystems (system: {
+        default = (nixpkgsFor.${system}).clinical-recommendations;
+        oci-image =
+          let
+            pkgs = (nixpkgsFor.${system});
+          in
+          pkgs.dockerTools.buildLayeredImage {
+            name = "clinical-recommendations";
+            tag = "latest";
+
+            contents = [ pkgs.clinical-recommendations ];
+
+            config = {
+              Cmd = [ "/bin/clinical_recommendations" ];
+              ExposedPorts = {
+                "8000/tcp" = { };
+              };
+            };
+          };
+      });
+
       devShells = forAllSystems (
         system: with nixpkgsFor.${system}; {
           default = mkShell {

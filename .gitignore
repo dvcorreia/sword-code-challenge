@@ -7,6 +7,9 @@
 # Direnv
 .direnv
 
+# Nix
+result
+
 # Ruff
 .ruff_cache
 
