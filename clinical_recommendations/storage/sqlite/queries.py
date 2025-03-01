@@ -26,6 +26,44 @@ INSERT INTO recommendations (
 """
 
 
+class Querier:
+    def __init__(self, conn: sqlalchemy.engine.Connection):
+        self._conn = conn
+
+    def get_recommendation(
+        self, *, recommendation_id: Any
+    ) -> Optional[models.Recommendation]:
+        row = self._conn.execute(
+            sqlalchemy.text(GET_RECOMMENDATION), {"p1": recommendation_id}
+        ).first()
+        if row is None:
+            return None
+        return models.Recommendation(
+            recommendation_id=row[0],
+            patient_id=row[1],
+            recommendation=row[2],
+            timestamp=row[3],
+        )
+
+    def insert_recommendation(
+        self,
+        *,
+        recommendation_id: Any,
+        patient_id: Any,
+        recommendation: Any,
+        timestamp: Any,
+    ) -> None:
+        self._conn.execute(
+            sqlalchemy.text(INSERT_RECOMMENDATION),
+            {
+                "p1": recommendation_id,
+                "p2": patient_id,
+                "p3": recommendation,
+                "p4": timestamp,
+            },
+        )
+
+
 class AsyncQuerier:
     def __init__(self, conn: sqlalchemy.ext.asyncio.AsyncConnection):
         self._conn = conn

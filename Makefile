@@ -12,7 +12,7 @@ rules.test:
 format:
 	python -m isort .
 	python -m black .
-	python -m ruff format
+	python -m ruff check --fix
 
 test:
 	python -m pytest .

@@ -15,6 +15,7 @@ dependencies = [
     "hypercorn",
     "httpx",
     "sqlalchemy[asyncio]",
+    "aiosqlite",
     "asyncpg",
     "psycopg2-binary",
 ]
@@ -46,6 +47,7 @@ namespaces = false  # false to disable scanning PEP 420 namespaces (true by defa
 
 [tool.setuptools.package-data]
 "clinical_recommendations.storage.sqlite.migrations" = ["*.sql"]
+"clinical_recommendations.storage.postgresql.migrations" = ["*.sql"]
 
 [tool.black]
 line-length = 88
@@ -126,6 +128,10 @@ ignore = [
     "E501",  # line too long, handled by black
     "C901",  # too complex
     "B008",  # function call in argument defaults
+]
+
+fixable = [
+    "F401",  # remove unused imports
 ]
 
 # allow unused variables when underscore-prefixed.
