@@ -12,6 +12,9 @@ services:
       OPA_URL: http://opa:8181
       REDIS_HOST: redis
       REDIS_PORT: 6379
+      OIDC_URL: http://127.0.0.1:5556/dex/.well-known/openid-configuration
+      OIDC_CLIENT_ID: clinical-recommendations
+      OIDC_CLIENT_SECRET: ZXhhbXBsZS1hcHAtc2VjcmV0
     depends_on:
       postgres:
         condition: service_healthy

@@ -9,6 +9,8 @@ from uuid import UUID
 
 import redis.asyncio as redis
 from fastapi import Depends, FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.security import OpenIdConnect
 from hypercorn import Config
 from hypercorn.asyncio import serve
 from pydantic import BaseModel
@@ -101,7 +103,31 @@ async def lifespan(_: FastAPI):
     await redis_client.close()
 
 
-app = FastAPI(lifespan=lifespan)
+oidc = OpenIdConnect(openIdConnectUrl=os.environ.get("OIDC_URL", ""), auto_error=True)
+
+OIDCDep = Annotated[str, Depends(oidc)]
+
+app = FastAPI(
+    lifespan=lifespan,
+    swagger_ui_oauth2_redirect_url="/docs/oauth2-redirect",
+    swagger_ui_init_oauth={
+        "clientId": os.environ.get("OIDC_CLIENT_ID", ""),
+        "clientSecret": os.environ.get("OIDC_CLIENT_SECRET", ""),
+        "appName": "Clinical Recommendations",
+        "usePkceWithAuthorizationCodeGrant": True,
+        "scopes": "openid profile email",
+    },
+)
+
+origins = ["*"]  # TODO: adjust for production
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 class Recommendation(BaseModel):

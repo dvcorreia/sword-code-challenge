@@ -1,7 +1,7 @@
 # The base path of Dex and the external name of the OpenID Connect service.
 # This is the canonical URL that all clients MUST use to refer to Dex. If a
 # path is provided, Dex's HTTP service will listen at a non-root URL.
-issuer: http://127.0.0.1:5556/dex
+issuer: http://0.0.0.0:5556/dex
 
 # The storage configuration determines where Dex stores its state.
 # See the documentation (https://dexidp.io/docs/storage/) for further information.
@@ -10,13 +10,14 @@ storage:
 
 # HTTP service configuration
 web:
-  http: 127.0.0.1:5556
+  http: 0.0.0.0:5556
+  allowedOrigins: ['*']
 
 # Static clients registered in Dex by default.
 staticClients:
   - id: clinical-recommendations
     redirectURIs:
-      - 'http://127.0.0.1:8000/callback'
+      - 'http://127.0.0.1:8000/docs/oauth2-redirect'
     name: 'Clinical Recommendations'
     secret: ZXhhbXBsZS1hcHAtc2VjcmV0
 
@@ -33,6 +34,10 @@ enablePasswordDB: true
 staticPasswords:
   - email: "admin@example.com"
     # bcrypt hash of the string "password": $(echo password | htpasswd -BinC 10 admin | cut -d: -f2)
-    hash: "$2a$10$2b2cU8CPhOTaGrs1HRQuAueS7JTT5ZHsHSzYiFPm1leZck7Mc8T4W"
+    hash: "$2y$10$jfyfUKiwZaWypAwjaZCsGe.676ruheutueXYrDwHC.sf9X4pkyPea"
     username: "admin"
     userID: "08a8684b-db88-4b73-90a9-3cd1661f5466"
+
+oauth2:
+  responseTypes: ["code", "id_token", "token"]
+  skipApprovalScreen: true
