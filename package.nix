@@ -20,6 +20,10 @@ python3.pkgs.buildPythonApplication {
     sqlalchemy.optional-dependencies.asyncio
     asyncpg
     psycopg2-binary
+    redis
+
+    # consumer optional dependencies
+    duckdb
   ];
 
   nativeCheckInputs = with python3.pkgs; [

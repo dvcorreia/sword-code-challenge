@@ -7,6 +7,7 @@ from datetime import datetime
 from typing import Annotated, AsyncGenerator, Sequence
 from uuid import UUID
 
+import redis.asyncio as redis
 from fastapi import Depends, FastAPI, HTTPException
 from hypercorn import Config
 from hypercorn.asyncio import serve
@@ -18,6 +19,11 @@ from clinical_recommendations.engine.recommendation import (
     ClinicalRecommendationEngine,
     PatientData,
 )
+from clinical_recommendations.events.events import (
+    RecommendationEvent,
+    RecommendationEventHandler,
+)
+from clinical_recommendations.events.redis import RedisEventHandler
 from clinical_recommendations.storage.migrations import (
     apply_migrations_async,
     get_postgres_migrations,
@@ -66,12 +72,33 @@ def get_storage(conn: Annotated[AsyncConnection, Depends(get_db_conn)]) -> Async
 StorageDep = Annotated[AsyncQuerier, Depends(get_storage)]
 
 
+redis_client = redis.Redis(
+    host=os.environ.get("REDIS_HOST", "localhost"),
+    port=int(os.environ.get("REDIS_PORT", "6379")),
+)
+
+
+def get_redis() -> redis.Redis:
+    return redis_client
+
+
+RedisDep = Annotated[redis.Redis, Depends(get_redis)]
+
+
+def get_event_handler(redis: RedisDep) -> RecommendationEventHandler:
+    return RedisEventHandler(redis)
+
+
+EventHandlerDep = Annotated[RecommendationEventHandler, Depends(get_event_handler)]
+
+
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     async with engine.begin() as conn:
         await apply_migrations_async(conn, get_postgres_migrations())
     yield
     await engine.dispose()
+    await redis_client.close()
 
 
 app = FastAPI(lifespan=lifespan)
@@ -97,6 +124,7 @@ async def evaluate(
     data: EvaluateRequest,
     recommendation_engine: RecommendationEngineDep,
     storage: StorageDep,
+    events: EventHandlerDep,
 ) -> EvaluateResponse:
     (recommendation_id, recommendations) = await recommendation_engine.recommend(
         data.data
@@ -115,6 +143,16 @@ async def evaluate(
         raise HTTPException(
             status_code=500, detail=f"Failed to save recommendation: {str(e)}"
         ) from e
+
+    for recommendation in recommendations:
+        await events.send_recommendation(
+            RecommendationEvent(
+                patient_id=data.patient_id,
+                recommendation_id=str(recommendation_id),
+                recommendation=recommendation,
+                timestamp=now,
+            )
+        )
 
     return EvaluateResponse(
         recommendation_id=recommendation_id,

@@ -18,10 +18,14 @@ dependencies = [
     "aiosqlite",
     "asyncpg",
     "psycopg2-binary",
+    "redis",
 ]
 dynamic = ["version"]
 
 [project.optional-dependencies]
+consumer = [
+    "duckdb"
+]
 dev = [
     "black",
     "coverage",
@@ -35,6 +39,7 @@ dev = [
 
 [project.scripts]
 clinical-recommendations-server = "clinical_recommendations._main:main"
+clinical-recommendations-logger = "clinical_recommendations.consumer:main"
 
 [tool.hatch.version]
 path = "clinical_recommendations/__init__.py"

@@ -64,18 +64,13 @@
                 ]
               ))
 
+              duckdb
+              redis
               dex-oidc
               open-policy-agent
               sqlc
             ];
           };
-
-          PG_HOST = "localhost";
-          PG_PORT = "5432";
-          PG_USER = "postgres";
-          PG_PASSWORD = "mysecretpassword";
-          PG_DATABASE = "recommendations";
-          OPA_URL = "http://localhost:8181";
         }
       );
 

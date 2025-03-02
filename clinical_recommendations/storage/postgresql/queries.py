@@ -12,7 +12,6 @@ from typing import AsyncIterator, Iterator, List
 import sqlalchemy
 import sqlalchemy.ext.asyncio
 
-
 GET_RECOMMENDATION_BY_ID = """-- name: get_recommendation_by_id \\:many
 SELECT r.id, r.patient_id, r.timestamp, ri.item_id, ri.text
 FROM recommendations r

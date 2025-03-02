@@ -10,9 +10,20 @@ services:
       PG_PASSWORD: ${POSTGRES_PASSWORD:-mysecretpassword}
       PG_DATABASE: ${POSTGRES_DB:-recommendations}
       OPA_URL: http://opa:8181
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
     depends_on:
       postgres:
         condition: service_healthy
+  recommendations-consumer:
+    build: .
+    entrypoint: clinical-recommendations-logger
+    command: "--duckdb recommendations-logging-db.duckdb"
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    volumes:
+      - recommendations-logging-db.duckdb:/usr/src/app/recommendations-logging-db.duckdb
   postgres:
     image: postgres:17.4
     environment:
@@ -51,6 +62,13 @@ services:
     image: nginx:1.27.0-alpine
     volumes:
       - ./rules/bundle.tar.gz:/usr/share/nginx/html/bundle.tar.gz
+  redis:
+    image: redis:7.4
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis:/data
 
 volumes:
     postgres:
+    redis:
