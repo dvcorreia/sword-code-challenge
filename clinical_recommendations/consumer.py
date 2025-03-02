@@ -75,7 +75,12 @@ async def _main(argv: Sequence[str] | None = None) -> int:
 
     args = parser.parse_args(argv)
 
-    duckdb_conn = duckdb.connect(Path(args.duckdb))
+    duckdb_path = Path(args.duckdb)
+    if not duckdb_path.parent.exists():
+        duckdb_path.parent.mkdir(parents=True)
+    logging.info(f"storing data at: {duckdb_path}")
+
+    duckdb_conn = duckdb.connect(duckdb_path)
     recommendation_logger: RecommendationsLogger = DuckDBRecommendationsLogger(
         duckdb_conn
     )

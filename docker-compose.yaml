@@ -15,15 +15,22 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      redis:
+        condition: service_healthy
   recommendations-consumer:
     build: .
     entrypoint: clinical-recommendations-logger
-    command: "--duckdb recommendations-logging-db.duckdb"
+    command:
+      - "--duckdb"
+      - "/etc/clinical-recommendations-logger/data/db.duckdb"
     environment:
       REDIS_HOST: redis
       REDIS_PORT: 6379
     volumes:
-      - recommendations-logging-db.duckdb:/usr/src/app/recommendations-logging-db.duckdb
+      - ./data/:/etc/clinical-recommendations-logger/data/
+    depends_on:
+      redis:
+        condition: service_healthy
   postgres:
     image: postgres:17.4
     environment:
@@ -35,7 +42,7 @@ services:
     volumes:
       - postgres:/var/lib/postgresql/data
     healthcheck:
-      test: "CMD-SHELL pg_isready -d ${POSTGRES_DB:-recommendations} -U ${POSTGRES_USER:-postgres}"
+      test: ["CMD-SHELL", "pg_isready"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -68,7 +75,13 @@ services:
       - "6379:6379"
     volumes:
       - redis:/data
+    healthcheck:
+      test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
 volumes:
     postgres:
     redis:
+    duckdb:

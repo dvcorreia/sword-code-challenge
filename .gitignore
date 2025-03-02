@@ -1,6 +1,7 @@
 # Project
 recommendations.db*
 recommendations-logging-db.duckdb
+data/
 
 # OS
 .DS_Store
