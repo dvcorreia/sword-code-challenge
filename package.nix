@@ -18,6 +18,7 @@ python3.pkgs.buildPythonApplication {
     httpx
     sqlalchemy
     sqlalchemy.optional-dependencies.asyncio
+    aiosqlite
     asyncpg
     psycopg2-binary
     redis
