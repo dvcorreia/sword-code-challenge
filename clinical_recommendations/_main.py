@@ -55,7 +55,7 @@ engine = create_async_engine(
 
 
 async def get_db_conn() -> AsyncGenerator[AsyncConnection, None]:
-    async with engine.connect() as conn:
+    async with engine.begin() as conn:
         yield conn
 
 
