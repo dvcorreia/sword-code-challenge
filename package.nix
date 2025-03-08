@@ -22,6 +22,7 @@ python3.pkgs.buildPythonApplication {
     asyncpg
     psycopg2-binary
     redis
+    structlog
 
     # consumer optional dependencies
     duckdb

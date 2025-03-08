@@ -19,6 +19,7 @@ dependencies = [
     "asyncpg",
     "psycopg2-binary",
     "redis",
+    "structlog",
 ]
 dynamic = ["version"]
 

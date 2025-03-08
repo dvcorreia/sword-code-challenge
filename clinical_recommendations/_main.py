@@ -16,6 +16,7 @@ from hypercorn.asyncio import serve
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncConnection, create_async_engine
 
+import clinical_recommendations.platform.healthcheck.postgres as pg_health
 from clinical_recommendations.engine.opa import OpaEngine
 from clinical_recommendations.engine.recommendation import (
     ClinicalRecommendationEngine,
@@ -26,14 +27,22 @@ from clinical_recommendations.events.events import (
     RecommendationEventHandler,
 )
 from clinical_recommendations.events.redis import RedisEventHandler
+from clinical_recommendations.platform.healthcheck.asynchronous import AsyncHealthcheck
+from clinical_recommendations.platform.healthcheck.healthers import health_func
+from clinical_recommendations.platform.healthcheck.opa import OPAHealthcheck
+from clinical_recommendations.platform.healthcheck.redis import RedisHealthcheck
+from clinical_recommendations.platform.healthcheck.routes import (
+    add_healthcheck_handlers,
+)
 from clinical_recommendations.storage.migrations import (
     apply_migrations_async,
     get_postgres_migrations,
 )
 from clinical_recommendations.storage.postgresql.queries import AsyncQuerier
 
+opa_url = os.environ.get("OPA_URL", "http://localhost:8181")
 recommendation_engine: ClinicalRecommendationEngine = OpaEngine(
-    addr=os.environ.get("OPA_URL", "http://localhost:8181"),
+    addr=opa_url,
     policy="clinical_recommendations.rules.recommendations",
 )
 
@@ -128,6 +137,24 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+health_checker = AsyncHealthcheck()
+
+
+async def pg_healthcheck():
+    async with engine.begin() as conn:
+        return await pg_health.is_online(conn)
+
+
+health_checker.add("storage.postgresql", health_func(pg_healthcheck))
+
+redis_hc = RedisHealthcheck(redis_client)
+health_checker.add("events.redis", redis_hc)
+
+opa_hc = OPAHealthcheck(opa_url, check_bundles=True)
+health_checker.add("rules.opa", opa_hc)
+
+add_healthcheck_handlers(app, health_checker, prefix="/health", tags=["telemetry"])
 
 
 class Recommendation(BaseModel):
