@@ -23,6 +23,11 @@ python3.pkgs.buildPythonApplication {
     psycopg2-binary
     redis
     structlog
+    opentelemetry-api
+    opentelemetry-sdk
+    prometheus-client
+    opentelemetry-exporter-prometheus
+    opentelemetry-instrumentation-fastapi
 
     # consumer optional dependencies
     duckdb

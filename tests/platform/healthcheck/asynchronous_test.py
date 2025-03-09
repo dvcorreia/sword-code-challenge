@@ -12,7 +12,7 @@ from tests.platform.healthcheck.asynchronous import AsyncHealtherMock
 async def test_concurrent_health_check():
     """
     Testing ready and live, they should not take more than the time of the most
-    expensive computation on multithreading systems.
+    expensive computation.
     Time constrains are not tested due to weak reproducibility of results.
     """
 

@@ -8,11 +8,23 @@ from typing import Annotated, AsyncGenerator, Sequence
 from uuid import UUID
 
 import redis.asyncio as redis
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OpenIdConnect
 from hypercorn import Config
 from hypercorn.asyncio import serve
+from opentelemetry.exporter.prometheus import PrometheusMetricReader
+from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
+from opentelemetry.metrics import get_meter_provider, set_meter_provider
+from opentelemetry.sdk.metrics import MeterProvider
+from opentelemetry.sdk.resources import SERVICE_NAME, Resource
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import (
+    BatchSpanProcessor,
+    ConsoleSpanExporter,
+)
+from opentelemetry.trace import get_tracer_provider, set_tracer_provider
+from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncConnection, create_async_engine
 
@@ -157,6 +169,34 @@ opa_hc = OPAHealthcheck(opa_url, check_bundles=True)
 health_checker.add("rules.opa", opa_hc)
 
 add_healthcheck_handlers(app, health_checker, prefix="/health", tags=["telemetry"])
+
+trace_provider = TracerProvider()
+trace_provider.add_span_processor(BatchSpanProcessor(ConsoleSpanExporter()))
+set_tracer_provider(trace_provider)
+
+prom_reader = PrometheusMetricReader()
+set_meter_provider(
+    MeterProvider(
+        resource=Resource.create({SERVICE_NAME: "clinical-recommendations-server"}),
+        metric_readers=[prom_reader],
+    )
+)
+
+FastAPIInstrumentor().instrument_app(
+    app=app,
+    tracer_provider=get_tracer_provider(),
+    meter_provider=get_meter_provider(),
+    excluded_urls="health,docs,openapi.json,metrics",
+)
+
+
+@app.get("/metrics", tags=["telemetry"])
+def metrics() -> Response:
+    data = generate_latest()
+    res = Response(content=data)
+    res.headers["Content-Type"] = CONTENT_TYPE_LATEST
+    res.headers["Content-Length"] = str(len(data))
+    return res
 
 
 class Recommendation(BaseModel):
