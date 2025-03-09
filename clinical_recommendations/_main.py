@@ -17,6 +17,7 @@ from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncConnection, create_async_engine
 
 import clinical_recommendations.platform.healthcheck.postgres as pg_health
+import clinical_recommendations.platform.logging.structlog as pstructlog
 from clinical_recommendations.engine.opa import OpaEngine
 from clinical_recommendations.engine.recommendation import (
     ClinicalRecommendationEngine,
@@ -34,6 +35,7 @@ from clinical_recommendations.platform.healthcheck.redis import RedisHealthcheck
 from clinical_recommendations.platform.healthcheck.routes import (
     add_healthcheck_handlers,
 )
+from clinical_recommendations.platform.logging.hypercorn import Logger
 from clinical_recommendations.storage.migrations import (
     apply_migrations_async,
     get_postgres_migrations,
@@ -243,12 +245,17 @@ async def fetch_recommendation(
 
 
 def main(_: Sequence[str] | None = None) -> int:
+    pstructlog.setup_logging(
+        pstructlog.Config(
+            level="DEBUG",
+            format=pstructlog.LogFormat.TEXT,
+        )
+    )
+
+    hypercorn_config = Config()
+    hypercorn_config.bind = ["0.0.0.0"]
+    hypercorn_config.logger_class = Logger
+
     # type issue: https://github.com/encode/starlette/discussions/2040
-    asyncio.run(serve(app, hypercorn_config()))  # type: ignore[arg-type]
+    asyncio.run(serve(app, hypercorn_config))  # type: ignore[arg-type]
     return 0
-
-
-def hypercorn_config() -> Config:
-    config = Config()
-    config.bind = ["0.0.0.0"]
-    return config
